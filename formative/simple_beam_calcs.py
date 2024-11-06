@@ -85,7 +85,7 @@ def calculate_expected_deflection(num_brackets,E, density)-> int:
     d_additional = d_overall- d_self
     return d_overall, d_additional, d_add_simple
 
-def calculate_shear(num_brackets, E, density)-> int:
+def calculate_shear(num_brackets:list, E:int, density:int)-> int:
     max_shear_force = (heli_weight_sf/num_brackets)+ (density * V * g)
     max_shear_stress = (3*max_shear_force*3)/(2*t*w)
     return max_shear_stress
@@ -112,10 +112,10 @@ def main():
         print(f"Expected overall deflection: {expected_deflection:.1E}m")
 
         print(f"Model Load Magnitude: {round(model_load,5)}")
-    
+        
+        spacing = (8 - (w*(num_brackets-1))) / (num_brackets -1)
+        print(f"Bracket spacing: {round(spacing,2)}")
 
-    print()
-
-if __name__ == "__main__":
+if __name__ == "__main__":    
     main()
 
