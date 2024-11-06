@@ -13,7 +13,7 @@ start = time.time()
 import pandas as pd
 print(f"matplotlib imported in {time.time() - start:.4f} seconds")
 import math
-
+import itertools
 
 def process_data():
     '''
@@ -45,42 +45,35 @@ def process_data():
 
     return separated_data
 
-
 def plot_data(separated_data: dict):
     '''
     Plot deflection against seed size for each CSType, with line style based on Geometric_Order
     '''
     plt.figure(figsize=(10, 6))
     line_styles = {'Linear': 'solid', 'Quadratic': 'dotted'}
-    plotted_geom_orders = set()  # Track plotted orders for legend purposes
+
+    color_palette = plt.get_cmap("tab10") 
+    cstype_colors = {cstype: color_palette(i) for i, cstype in enumerate(separated_data.keys())}
 
     for cstype, geom_data in separated_data.items():
+        color = cstype_colors[cstype]
+        
         for geom_order, data in geom_data.items():
-            if len(data['seed_size']) > 0:
-                # Normalize and transform seed size for plotting
-                relative_seed_sizes = data['seed_size'] / np.max(data['seed_size'])
-                transformed_seed_sizes = np.sqrt(relative_seed_sizes)
+            line_style = line_styles.get(geom_order, 'solid')
+            
+            plt.plot(data['seed_size'], data['deflection'], label=f"{cstype} - {geom_order}",
+                        color=color, linestyle=line_style, marker='o', markersize=5)
 
-                # Plot each combination with the specified line style
-                line_style = line_styles.get(geom_order, 'solid')
-                plt.plot(transformed_seed_sizes, data['deflection'], label=f"{cstype} - {geom_order}",
-                         linestyle=line_style, marker='o', markersize=5)
-
-                # Only add each geom_order once for the legend
-                if geom_order not in plotted_geom_orders:
-                    plt.plot([], [], label=geom_order, linestyle=line_style, color='black')  # Dummy plot for legend
-                    plotted_geom_orders.add(geom_order)
 
     plt.xscale('log')
     plt.gca().invert_xaxis()
-    plt.xlabel('Relative Seed Size (Normalized)')
-    plt.ylabel('Max Deflection (Max_Deflection)')
-    plt.title('Mesh Convergence for Lug with 1MPa applied Pressure')
-    plt.legend()
+
+    plt.xlabel('Relative Seed Size')
+    plt.ylabel('Maximum Deflection of Part')
+    plt.title('Mesh Convergence for Lifting Lug with 1MPa applied Pressure')
+    plt.legend(title="Element Type and Geometric Order", fancybox = True)
     plt.grid()
     plt.show()
-    plt.xscale('log')
-    plt.gca().invert_xaxis()
 
 def main():
     plot_data(process_data())
